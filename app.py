@@ -28,12 +28,15 @@ cprodmenorvalor = f"{produto_menor_valor['PDESC'].iloc[0]} (PCOD: {produto_menor
 
 # Apresentando no Streamlit
 st.title("Análise de Vendas")
+st.markdown("---")  # Linha separadora
 
 st.subheader("Produto com Maior Valor de Compras")
 st.markdown(f"**{cprodmaiorvalor}**")
 
 st.subheader("Produto com Menor Valor de Compras")
 st.markdown(f"**{cprodmenorvalor}**")
+
+st.markdown("---")  # Linha separadora
 
 # Agregando a quantidade total de compra por produto
 total_qtd = compra_itens.groupby('PCOD')['QTDCOMPRA'].sum().reset_index()
@@ -60,6 +63,7 @@ st.markdown(f"**{cprodmaiorqtd}**")
 st.subheader("Produto com Menor Quantidade de Pedidos")
 st.markdown(f"**{cprodmenorqtd}**")
 
+st.markdown("---")  # Linha separadora
 
 # Convertendo FVALCOMPRA para numérico (caso não esteja)
 compras['FVALCOMPRA'] = pd.to_numeric(compras['FVALCOMPRA'], errors='coerce')
@@ -97,6 +101,7 @@ st.markdown("**CIDADE:** " + detalhes_forn_menor_valor['CP_CIDADE'].iloc[0])
 st.markdown("**UF:** " + detalhes_forn_menor_valor['UF'].iloc[0])
 st.markdown("**SOMA DA COMPRA:** " + str(detalhes_forn_menor_valor['FVALCOMPRA'].iloc[0]))
 
+st.markdown("---")  # Linha separadora
 
 # Contando pedidos por fornecedor
 contagem_pedidos = compras['IDFORN'].value_counts()
@@ -108,10 +113,32 @@ id_forn_menos_pedidos = contagem_pedidos.idxmin()
 # Encontrando as informações dos fornecedores
 info_forn_mais_pedidos = fornecedores[fornecedores['IDFORN'] == id_forn_mais_pedidos]
 info_forn_menos_pedidos = fornecedores[fornecedores['IDFORN'] == id_forn_menos_pedidos]
+# Identificando a quantidade de recorrências e datas para o fornecedor com mais pedidos
 
-# Exibindo as informações no dashboard
-st.write("Fornecedor com mais pedidos:")
-st.table(info_forn_mais_pedidos)
+qtd_mais_pedidos = contagem_pedidos[id_forn_mais_pedidos]
+datas_mais_pedidos = compras[compras['IDFORN'] == id_forn_mais_pedidos]['FDATAEMI']
 
-st.write("Fornecedor com menos pedidos:")
-st.table(info_forn_menos_pedidos)
+# Identificando a quantidade de recorrências e datas para o fornecedor com menos pedidos
+qtd_menos_pedidos = contagem_pedidos[id_forn_menos_pedidos]
+datas_menos_pedidos = compras[compras['IDFORN'] == id_forn_menos_pedidos]['FDATAEMI']
+
+# Exibindo os resultados com formatação
+st.markdown("### Fornecedor com maior recorrencia de compra")
+st.markdown("**CODIGO DO FORNECEDOR::** " + str(info_forn_mais_pedidos['IDFORN'].iloc[0]))
+st.markdown("**NOME DO FORNECEDOR:** " + info_forn_mais_pedidos['NOMEFORN'].iloc[0])
+st.markdown("**CIDADE:** " + info_forn_mais_pedidos['CP_CIDADE'].iloc[0])
+st.markdown("**UF:** " + info_forn_mais_pedidos['UF'].iloc[0])
+st.markdown("**QUANTIDADE DE COMPRAS:** " + str(qtd_mais_pedidos))
+st.markdown("**DATAS DAS COMPRAS:** " + ', '.join(datas_mais_pedidos.astype(str)))
+
+
+st.markdown("---")  # Linha separadora
+
+st.markdown("### Fornecedor com menor recorrencia de compras")
+st.markdown("**CODIGO DO FORNECEDOR:** " + str(info_forn_menos_pedidos['IDFORN'].iloc[0]))
+st.markdown("**NOME DO FORNECEDOR:** " + info_forn_menos_pedidos['NOMEFORN'].iloc[0])
+st.markdown("**CIDADE:** " + info_forn_menos_pedidos['CP_CIDADE'].iloc[0])
+st.markdown("**UF:** " + info_forn_menos_pedidos['UF'].iloc[0])
+st.markdown("**QUANTIDADE DE COMPRAS:** " + str(qtd_menos_pedidos))
+st.markdown("**DATAS DAS COMPRAS:** " + ', '.join(datas_menos_pedidos.astype(str)))
+st.markdown("---")  # Linha separadora
