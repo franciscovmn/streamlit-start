@@ -50,15 +50,15 @@ st.markdown("---")  # Linha separadora
 
 # Agregando a quantidade total de compra por produto
 total_qtd = compra_itens.groupby('PCOD')['QTDCOMPRA'].sum().reset_index()
-print(total_qtd)
 
 # Encontrando o PCOD com maior e menor quantidade de pedidos
 idx_maior_qtd = total_qtd['QTDCOMPRA'].idxmax()
 idx_menor_qtd = total_qtd['QTDCOMPRA'].idxmin()
 
-produto_maior_qtd = total_vendas[total_vendas['PCOD'] == total_qtd['PCOD'][idx_maior_qtd]]
-produto_menor_qtd = total_vendas[total_vendas['PCOD'] == total_qtd['PCOD'][idx_menor_qtd]]
-print(produto_maior_qtd)
+# Esta verificando na coluna PCOD da tabela 'total_vendas' o indice que correspondeu a maior quantidade de compras
+produto_maior_qtd = total_vendas.loc[[idx_maior_qtd]]
+produto_menor_qtd = total_vendas.loc[[idx_menor_qtd]]
+
 # Encontrando os nomes dos produtos
 produto_maior_qtd = produto_maior_qtd.merge(produtos, on='PCOD')
 produto_menor_qtd = produto_menor_qtd.merge(produtos, on='PCOD')
@@ -77,15 +77,14 @@ st.markdown(f"**{cprodmenorqtd}**")
 st.markdown("---")  # Linha separadora
 
 # Convertendo FVALCOMPRA para numérico (caso não esteja)
+# O errors='coerce' é para se na conversao existir algum valor vazio, ele preencher com nan ( vazio )
 compras['FVALCOMPRA'] = pd.to_numeric(compras['FVALCOMPRA'], errors='coerce')
 
 # Agrupando por IDFORN e somando os valores de FVALCOMPRA
 total_compras_por_fornecedor = compras.groupby('IDFORN')['FVALCOMPRA'].sum().reset_index()
 
-# Encontrando o ID do fornecedor com maior valor de compras
+# Encontrando o ID do fornecedor com maior e menor valor de compras
 id_forn_maior_valor = total_compras_por_fornecedor.loc[total_compras_por_fornecedor['FVALCOMPRA'].idxmax()]
-
-# Encontrando o ID do fornecedor com menor valor de compras
 id_forn_menor_valor = total_compras_por_fornecedor.loc[total_compras_por_fornecedor['FVALCOMPRA'].idxmin()]
 
 # Unindo os dados com os detalhes dos fornecedores
