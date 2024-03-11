@@ -3,7 +3,7 @@ import streamlit as st
 import plotly.express as px
 import streamlit_shadcn_ui as ui
 import pygwalker as pyg
-
+st.set_page_config(layout="wide")
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Carregando os dados
@@ -43,8 +43,6 @@ alteracao_colunas = ['IDCLI','NOMEFORN','UF','FVALVENDA',]
 tabela_clientes_mais_compraram = tabela_clientes_mais_compraram.reindex(columns=alteracao_colunas)
 # ---------------- GRAFICO FORNECEDORES ----------------------
 
-
-
 # Criando o gráfico com Plotly Express
 fig = px.bar(tabela_clientes_mais_compraram, x='FVALVENDA', y='NOMEFORN', color='UF', text='IDCLI', orientation='h')
 
@@ -74,6 +72,3 @@ filtered_data = tabela_clientes_mais_compraram[tabela_clientes_mais_compraram['N
 
 # Exibindo a tabela filtrada
 st.write(filtered_data)
-
-
-

@@ -3,7 +3,7 @@ import streamlit as st
 import plotly.express as px
 import streamlit_shadcn_ui as ui
 import pygwalker as pyg
-
+st.set_page_config(layout="wide")
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Carregando os dados
@@ -31,7 +31,6 @@ fornecedor_mais_compra = compras.groupby('IDFORN')['FVALCOMPRA'].sum().reset_ind
 fornecedor_mais_compra = fornecedor_mais_compra.sort_values(by='FVALCOMPRA', ascending=False)
 
 nome_fornecedor_mais_compra = fornecedor_mais_compra.merge(fornecedores,on='IDFORN')
-
 
 # Visualizando as datas de compra
 data_compra_fornecedor = compras.groupby('FDATAEMI')['FVALCOMPRA'].sum().reset_index()

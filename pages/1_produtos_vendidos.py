@@ -3,7 +3,7 @@ import streamlit as st
 import plotly.express as px
 import streamlit_shadcn_ui as ui
 import pygwalker as pyg
-
+st.set_page_config(layout="wide")
 # Carregando os dados
 compra_itens = pd.read_csv('/Users/FVMN/Documents/GitHub/upciga_streamlit/csv/compra_itens.csv', delimiter=';')
 produtos = pd.read_csv('/Users/FVMN/Documents/GitHub/upciga_streamlit/csv/produto.csv', delimiter=';', encoding='latin-1')
