@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import streamlit_shadcn_ui as ui
+
 st.set_page_config(layout="wide")
 
 # Carregar os dados
@@ -55,6 +56,7 @@ elif selected_option == "Lucro (Decrescente)":
     vendas_relacao_produtos = vendas_relacao_produtos.sort_values(by='LUCRO', ascending=False)
 elif selected_option == "Markup (Decrescente)":
     vendas_relacao_produtos = vendas_relacao_produtos.sort_values(by='MARKUP', ascending=False)
+
 # Formatação dos dados
 vendas_relacao_produtos['PCOD'] = vendas_relacao_produtos['PCOD'].map(str)
 vendas_relacao_produtos['VLVENDA'] = vendas_relacao_produtos['VLVENDA'].map(lambda x: f'R$ {x:,.2f}')
@@ -70,7 +72,6 @@ vendas_relacao_produtos_r = vendas_relacao_produtos.rename(columns={'PCOD': 'COD
 st.write(vendas_relacao_produtos_r)
 
 
-
 cols = st.columns(4)
 with cols[0]:
     ui.metric_card(title="QUANTIDADE", content=f'{soma_quantidade}', description="SOMA DAS QUANTIDADES VENDIDAS", key="card1")
@@ -82,9 +83,9 @@ with cols[3]:
     ui.metric_card(title="MARGEM", content=f'R${soma_margem:,.2f}', description="SOMA DAS MARGENS INDIVIDUAIS DE CADA PRODUTO", key="card4")
 
 
-cols = st.columns(2)
+cols = st.columns(5)
 with cols[0]:
     ui.metric_card(title="LUCRO", content=f'{percentual_lucro_final:,.2f}%', description="PERCENTUAL DO LUCRO BRUTO", key="card5")
-with cols[1]:
+with cols[5]:
     ui.metric_card(title="MARKUP MEDIO", content=f'{percentual_markup_final:,.2f}%', description="PERCENTUAL DO MARKUP MEDIO", key="card6")
 

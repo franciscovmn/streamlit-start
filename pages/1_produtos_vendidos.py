@@ -3,7 +3,9 @@ import streamlit as st
 import plotly.express as px
 import streamlit_shadcn_ui as ui
 import pygwalker as pyg
+
 st.set_page_config(layout="wide")
+
 # Carregando os dados
 compra_itens = pd.read_csv('/Users/FVMN/Documents/GitHub/upciga_streamlit/csv/compra_itens.csv', delimiter=';')
 produtos = pd.read_csv('/Users/FVMN/Documents/GitHub/upciga_streamlit/csv/produto.csv', delimiter=';', encoding='latin-1')
@@ -20,7 +22,6 @@ venda_cliente.drop('IDFORN', axis='columns')
 
 # Substituindo NaN por Consumidor Final
 venda_cliente['NOMECLI'].fillna('Consumidor Final', inplace=True)
-#TELA DE PRODUTOS VENDIDOS
 
 # Criando tabela dos produtos que mais venderam
 produto_mais_venda = venda_itens.groupby('PCOD')['VLVENDA'].sum().reset_index()
@@ -33,27 +34,13 @@ top_produtos_mais_vendidos = produto_mais_venda.head(5)
 # Agora mesclando para saber o nome dos produtos
 verifica_nome_produtos_vendas = top_produtos_mais_vendidos.merge(produtos[['PCOD', 'PDESC', 'PUNIDADE', 'PVLUVENDA' , 'PVLUVEN3']], on='PCOD')
 
-# Criando o gráfico de pizza
+# Criando o gráfico de pizza valor venda
 fig = px.pie(verifica_nome_produtos_vendas, values='VLVENDA', names='PDESC', title='TOP 5 PRODUTOS MAIS VENDIDOS')
-st.plotly_chart(fig)
-
-# Criando a tabela que relacionada ao grafico pizza
-data = [
-    {"PRODUTO": f"{verifica_nome_produtos_vendas.iloc[0]['PDESC']}", "VALOR VENDA": f"R$ {verifica_nome_produtos_vendas.iloc[0]['VLVENDA']:.2f}", "VALOR UNITARIO": f"{verifica_nome_produtos_vendas.iloc[0]['PVLUVENDA']}"},
-    {"PRODUTO": f"{verifica_nome_produtos_vendas.iloc[1]['PDESC']}", "VALOR VENDA": f"R$ {verifica_nome_produtos_vendas.iloc[1]['VLVENDA']:.2f}", "VALOR UNITARIO": f"{verifica_nome_produtos_vendas.iloc[1]['PVLUVENDA']}"},
-    {"PRODUTO": f"{verifica_nome_produtos_vendas.iloc[2]['PDESC']}", "VALOR VENDA": f"R$ {verifica_nome_produtos_vendas.iloc[2]['VLVENDA']:.2f}", "VALOR UNITARIO": f"{verifica_nome_produtos_vendas.iloc[2]['PVLUVENDA']}"},
-    {"PRODUTO": f"{verifica_nome_produtos_vendas.iloc[3]['PDESC']}", "VALOR VENDA": f"R$ {verifica_nome_produtos_vendas.iloc[3]['VLVENDA']:.2f}", "VALOR UNITARIO": f"{verifica_nome_produtos_vendas.iloc[3]['PVLUVENDA']}"},
-    {"PRODUTO": f"{verifica_nome_produtos_vendas.iloc[4]['PDESC']}", "VALOR VENDA": f"R$ {verifica_nome_produtos_vendas.iloc[4]['VLVENDA']:.2f}", "VALOR UNITARIO": f"{verifica_nome_produtos_vendas.iloc[4]['PVLUVENDA']}"}
-]
-
-# Criando o DataFrame para a exibição
-invoice_df = pd.DataFrame(data)
-ui.table(data=invoice_df, maxHeight=300)
 
 # -----------------------------------------------------------------
 
 # Criando a tabela que vai ficar os dados do codigo que teve mais unidades vendidas
-produto_mais_venda_qtd = venda_itens.groupby('PCOD')['QTDVENDA'].sum().reset_index()
+produto_mais_venda_qtd = venda_itens.groupby('PCOD')[['QTDVENDA','VLVENDA']].sum().reset_index()
 
 # Localizando os produtos que mais sairam em quantidade
 produto_mais_venda_qtd = produto_mais_venda_qtd.sort_values(by='QTDVENDA', ascending=False)
@@ -64,19 +51,68 @@ top_produtos_mais_vendidos_qtd = produto_mais_venda_qtd.head(5)
 # Agora mesclando para saber o nome dos produtos
 verifica_nome_produtos_vendas_qtd = top_produtos_mais_vendidos_qtd.merge(produtos[['PCOD', 'PDESC', 'PUNIDADE', 'PVLUVENDA' , 'PVLUVEN3']], on='PCOD')
 
-# Criando o gráfico de pizza
+# Criando o gráfico de pizza qtd
 fig_qtd = px.pie(verifica_nome_produtos_vendas_qtd, values='QTDVENDA', names='PDESC', title='TOP 5 PRODUTOS QUE MAIS FORAM VENDIDOS')
-# Exibindo o gráfico de pizza
-st.plotly_chart(fig_qtd)
 
-# Criando a tabela que relacionada ao grafico pizza
-data_qtd = [
-    {"PRODUTO": f"{verifica_nome_produtos_vendas_qtd.iloc[0]['PDESC']}", "QUANTIDADE VENDIDA": f"{verifica_nome_produtos_vendas_qtd.iloc[0]['QTDVENDA']:.2f}", "VALOR UNITARIO": f"{verifica_nome_produtos_vendas_qtd.iloc[0]['PVLUVENDA']}"},
-    {"PRODUTO": f"{verifica_nome_produtos_vendas_qtd.iloc[1]['PDESC']}", "QUANTIDADE VENDIDA": f"{verifica_nome_produtos_vendas_qtd.iloc[1]['QTDVENDA']:.2f}", "VALOR UNITARIO": f"{verifica_nome_produtos_vendas_qtd.iloc[1]['PVLUVENDA']}"},
-    {"PRODUTO": f"{verifica_nome_produtos_vendas_qtd.iloc[2]['PDESC']}", "QUANTIDADE VENDIDA": f"{verifica_nome_produtos_vendas_qtd.iloc[2]['QTDVENDA']:.2f}", "VALOR UNITARIO": f"{verifica_nome_produtos_vendas_qtd.iloc[2]['PVLUVENDA']}"},
-    {"PRODUTO": f"{verifica_nome_produtos_vendas_qtd.iloc[3]['PDESC']}", "QUANTIDADE VENDIDA": f"{verifica_nome_produtos_vendas_qtd.iloc[3]['QTDVENDA']:.2f}", "VALOR UNITARIO": f"{verifica_nome_produtos_vendas_qtd.iloc[3]['PVLUVENDA']}"},
-    {"PRODUTO": f"{verifica_nome_produtos_vendas_qtd.iloc[4]['PDESC']}", "QUANTIDADE VENDIDA": f"{verifica_nome_produtos_vendas_qtd.iloc[4]['QTDVENDA']:.2f}", "VALOR UNITARIO": f"{verifica_nome_produtos_vendas_qtd.iloc[4]['PVLUVENDA']}"}
-]
-# Criando o DataFrame para a exibição
-tabela_mais_qtd_venda = pd.DataFrame(data_qtd)
-ui.table(data=tabela_mais_qtd_venda, maxHeight=300)
+# Adicionando o selectbox para o usuário escolher entre top 5, 10 ou 20
+selected_option = st.selectbox("Selecione a quantidade de produtos mais vendidos:",
+                                ["Top 5", "Top 10", "Top 20"])
+
+# Determinando o número de produtos a serem exibidos com base na seleção do usuário
+if selected_option == "Top 5":
+    top_produtos = 5
+elif selected_option == "Top 10":
+    top_produtos = 10
+else:
+    top_produtos = 20
+
+# Redefinindo as variáveis com base na escolha do usuário
+top_produtos_mais_vendidos = produto_mais_venda.head(top_produtos)
+top_produtos_mais_vendidos_qtd = produto_mais_venda_qtd.head(top_produtos)
+
+# Atualizando os gráficos com as novas informações
+verifica_nome_produtos_vendas = top_produtos_mais_vendidos.merge(produtos[['PCOD', 'PDESC', 'PUNIDADE', 'PVLUVENDA' , 'PVLUVEN3']], on='PCOD')
+verifica_nome_produtos_vendas_qtd = top_produtos_mais_vendidos_qtd.merge(produtos[['PCOD', 'PDESC', 'PUNIDADE', 'PVLUVENDA' , 'PVLUVEN3']], on='PCOD')
+
+if selected_option == "Top 5":
+    fig = px.pie(verifica_nome_produtos_vendas, values='VLVENDA', names='PDESC', title=f'TOP {top_produtos} PRODUTOS EM VALOR DE VENDA')
+    fig_qtd = px.pie(verifica_nome_produtos_vendas_qtd, values='QTDVENDA', names='PDESC', title=f'TOP {top_produtos} PRODUTOS EM QUANTIDADES')
+else:
+    fig = px.bar(verifica_nome_produtos_vendas, y='PDESC', x='VLVENDA', orientation='h', title=f'TOP {top_produtos} PRODUTOS EM VALOR DE VENDA')
+    fig_qtd = px.bar(verifica_nome_produtos_vendas_qtd, y='PDESC', x='QTDVENDA', orientation='h', title=f'TOP {top_produtos} PRODUTOS EM QUANTIDADES')
+
+cols = st.columns(4)
+
+with cols[0]:
+    st.plotly_chart(fig)
+    
+with cols[2]:
+    st.plotly_chart(fig_qtd)
+
+cols_t = st.columns(2)
+
+
+# Resetar o índice de verifica_nome_produtos_vendas
+verifica_nome_produtos_vendas.reset_index(drop=True, inplace=True)
+
+# Formatar PCOD para números inteiros
+verifica_nome_produtos_vendas['PCOD'] = verifica_nome_produtos_vendas['PCOD'].map(str)
+verifica_nome_produtos_vendas_qtd['PCOD'] = verifica_nome_produtos_vendas_qtd['PCOD'].map(str)
+
+# Formatar 'VLVENDA' para moeda brasileira real
+verifica_nome_produtos_vendas['VLVENDA'] = verifica_nome_produtos_vendas['VLVENDA'].map(lambda x: f'R${x:,.2f}')
+verifica_nome_produtos_vendas['PVLUVENDA'] = verifica_nome_produtos_vendas['PVLUVENDA'].map(lambda x: f'R${x:,.2f}')
+
+# Selecione as colunas relevantes para verifica_nome_produtos_vendas_qtd
+verifica_nome_produtos_vendas_qtd = verifica_nome_produtos_vendas_qtd[['PCOD', 'PDESC', 'QTDVENDA','VLVENDA']]
+verifica_nome_produtos_vendas= verifica_nome_produtos_vendas[['PCOD', 'PDESC', 'VLVENDA','PVLUVENDA']]
+
+# Formatar 'QTDVENDA' para moeda brasileira real
+verifica_nome_produtos_vendas_qtd['QTDVENDA'] = verifica_nome_produtos_vendas_qtd['QTDVENDA'].map(lambda x: f'{x:,.0f}')
+verifica_nome_produtos_vendas_qtd['VLVENDA'] = verifica_nome_produtos_vendas_qtd['VLVENDA'].map(lambda x: f'R${x:,.2f}')
+
+# Mostrar a tabela embaixo do respectivo gráfico
+with cols_t[0]:
+    st.write(verifica_nome_produtos_vendas)
+with cols_t[1]:
+    st.write(verifica_nome_produtos_vendas_qtd)
