@@ -83,9 +83,9 @@ with cols[3]:
     ui.metric_card(title="MARGEM", content=f'R${soma_margem:,.2f}', description="SOMA DAS MARGENS INDIVIDUAIS DE CADA PRODUTO", key="card4")
 
 
-cols = st.columns(5)
+cols = st.columns(2)
 with cols[0]:
     ui.metric_card(title="LUCRO", content=f'{percentual_lucro_final:,.2f}%', description="PERCENTUAL DO LUCRO BRUTO", key="card5")
-with cols[5]:
+with cols[1]:
     ui.metric_card(title="MARKUP MEDIO", content=f'{percentual_markup_final:,.2f}%', description="PERCENTUAL DO MARKUP MEDIO", key="card6")
 
