@@ -75,24 +75,21 @@ def render_pagina_principal():
 
 # Função para renderizar a página de consulta por período
 def render_pagina_consulta_periodo():
-    # Mensagem inicial para o usuário
-    st.write("Por favor, selecione um intervalo de datas e insira o ID do fornecedor para filtrar as compras.")
-
     # Date Range Picker
     dt2 = ui.date_picker(key="date_picker2", mode="range", label="Selecione um intervalo de datas")
 
-    # ID do fornecedor
-    id_fornecedor = st.text_input("Digite o ID do fornecedor:")
+    # Converter as datas para o formato esperado (mes/dia/ano)
+    compras['FDATAEMI'] = pd.to_datetime(compras['FDATAEMI'], format='%m/%d/%Y')
 
-    # Verificar se ambos, o intervalo de datas e o ID do fornecedor, foram fornecidos
-    if dt2 is not None and id_fornecedor.strip() != "":
+    # Aplicar filtro de datas, se selecionado
+    if dt2 is not None:
         start_date = dt2[0]
         end_date = dt2[1]
         
-        # Filtrar o DataFrame com base no intervalo de datas e no ID do fornecedor selecionado
-        compras_filtradas = compras[(compras['FDATAEMI'] >= start_date) & (compras['FDATAEMI'] <= end_date) & (compras['IDFORN'] == int(id_fornecedor))]
+        # Filtrar o DataFrame com base no intervalo de datas selecionado
+        compras_filtradas = compras[(compras['FDATAEMI'] >= start_date) & (compras['FDATAEMI'] <= end_date)]
         
-        # Calcular a soma do valor de compra para o período e o ID do fornecedor selecionados
+        # Calcular a soma do valor de compra para o período selecionado
         soma_fvalcompra = compras_filtradas['FVALCOMPRA'].sum()
         
         # Exibir os dados filtrados
@@ -105,12 +102,10 @@ def render_pagina_consulta_periodo():
         st.write(compras_filtradas.drop(columns=['FDATAEMI']))  # Exclua a coluna original
         
         # Exibir a soma do valor de compra em um card
-        ui.metric_card(title="Total Compra", content=f"R$ {soma_fvalcompra:,.2f}", description="SOMA TOTAL ATÉ O DIA ATUAL")
-    elif dt2 is not None:
-        st.write("Por favor, insira o ID do fornecedor para filtrar as compras.")
-    elif id_fornecedor.strip() != "":
-        st.write("Por favor, selecione um intervalo de datas para filtrar as compras.")
 
+        ui.metric_card(title="Total Compra", content=f"R$ {soma_fvalcompra:,.2f}", description="SOMA TOTAL ATÉ O DIA ATUAL")
+    else:
+        st.write("Nenhum intervalo de datas selecionado.")
 pagina_selecionada = st.sidebar.radio('Selecione a página', ['Página Principal', 'Consulta por Período'])
 
 # Renderização da página selecionada
