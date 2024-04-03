@@ -106,10 +106,10 @@ def render_pagina_consulta_periodo():
         ui.metric_card(title="Total Compra", content=f"R$ {soma_fvalcompra:,.2f}", description="SOMA TOTAL ATÉ O DIA ATUAL")
     else:
         st.write("Nenhum intervalo de datas selecionado.")
-pagina_selecionada = st.sidebar.radio('Selecione a página', ['Página Principal', 'Consulta por Período'])
+pagina_selecionada = st.sidebar.radio('Selecione a página', ['CONSULTA FORNECEDORES', 'CONSULTA POR PERIODO'])
 
 # Renderização da página selecionada
-if pagina_selecionada == 'Página Principal':
+if pagina_selecionada == 'CONSULTA FORNECEDORES':
     render_pagina_principal()
-elif pagina_selecionada == 'Consulta por Período':
+elif pagina_selecionada == 'CONSULTA POR PERIODO':
     render_pagina_consulta_periodo()
