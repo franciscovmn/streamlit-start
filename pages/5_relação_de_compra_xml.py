@@ -25,79 +25,96 @@ venda_cliente['NOMECLI'].fillna('Consumidor Final', inplace=True)
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Localizando o fornecedor que eu mais comprei
-fornecedor_mais_compra = compras.groupby('IDFORN')['FVALCOMPRA'].sum().reset_index()
+# Função para renderizar a página principal
+def render_pagina_principal():
+    # Localizando o fornecedor que eu mais comprei
+    fornecedor_mais_compra = compras.groupby('IDFORN')['FVALCOMPRA'].sum().reset_index()
 
-fornecedor_mais_compra = fornecedor_mais_compra.sort_values(by='FVALCOMPRA', ascending=False)
+    fornecedor_mais_compra = fornecedor_mais_compra.sort_values(by='FVALCOMPRA', ascending=False)
 
-nome_fornecedor_mais_compra = fornecedor_mais_compra.merge(fornecedores,on='IDFORN')
+    nome_fornecedor_mais_compra = fornecedor_mais_compra.merge(fornecedores,on='IDFORN')
 
-# Visualizando as datas de compra
-data_compra_fornecedor = compras.groupby('FDATAEMI')['FVALCOMPRA'].sum().reset_index()
+    # Visualizando as datas de compra
+    data_compra_fornecedor = compras.groupby('FDATAEMI')['FVALCOMPRA'].sum().reset_index()
 
-data_compra_fornecedor = data_compra_fornecedor.sort_values(by='FDATAEMI',ascending=True)
+    data_compra_fornecedor = data_compra_fornecedor.sort_values(by='FDATAEMI',ascending=True)
 
-data_compra_fornecedor['FDATAEMI'] = pd.to_datetime(data_compra_fornecedor['FDATAEMI'], format='%m/%d/%Y')
-data_compra_fornecedor['FDATAEMI'] = data_compra_fornecedor['FDATAEMI'].dt.strftime('%d/%m/%Y') # Convertendo para a data dia/mes/ano
+    data_compra_fornecedor['FDATAEMI'] = pd.to_datetime(data_compra_fornecedor['FDATAEMI'], format='%m/%d/%Y')
+    data_compra_fornecedor['FDATAEMI'] = data_compra_fornecedor['FDATAEMI'].dt.strftime('%d/%m/%Y') # Convertendo para a data dia/mes/ano
 
-# Calcular a soma da coluna 'FVALCOMPRA' e converter para float
-soma_compra_xml = compras['FVALCOMPRA'].sum()
+    # Calcular a soma da coluna 'FVALCOMPRA' e converter para float
+    soma_compra_xml = compras['FVALCOMPRA'].sum()
 
-# Formatar a soma como uma string de moeda (Real)
-soma_compra_xml = f'R$ {soma_compra_xml:,.2f}'
+    # Formatar a soma como uma string de moeda (Real)
+    soma_compra_xml = f'R$ {soma_compra_xml:,.2f}'
 
-# Organizando as colunas
-nome_fornecedor_mais_compra['FVALCOMPRA'] = nome_fornecedor_mais_compra['FVALCOMPRA'].map(lambda x: f'R$ {x:,.2f}') # Formatar FVALCOMPRA para moeda (Real)
-nome_fornecedor_mais_compra = nome_fornecedor_mais_compra.reindex(columns=['IDFORN','NOMEFORN','FVALCOMPRA','UF','CP_CIDADE'])
+    # Organizando as colunas
+    nome_fornecedor_mais_compra['FVALCOMPRA'] = nome_fornecedor_mais_compra['FVALCOMPRA'].map(lambda x: f'R$ {x:,.2f}') # Formatar FVALCOMPRA para moeda (Real)
+    nome_fornecedor_mais_compra = nome_fornecedor_mais_compra.reindex(columns=['IDFORN','NOMEFORN','FVALCOMPRA','UF','CP_CIDADE'])
 
-# ----------------------------------------------------
-
-
-ui.metric_card(title="Total Compra", content=soma_compra_xml, description="SOMA TOTAL ATÉ O DIA ATUAL")
-
-
-# Formatar IDCLI para número inteiro sem vírgulas
-nome_fornecedor_mais_compra['IDFORN'] = nome_fornecedor_mais_compra['IDFORN'].map(lambda x: f'{x:}')
+    # ----------------------------------------------------
 
 
-search_term = st.text_input("Digite o termo de pesquisa:")
+    # Pesquisa por código ou nome do produto
+    search_term = st.text_input("Digite o nome ou código do produto:")
 
-# Filtrando os dados com base no termo de pesquisa
-filtered_data_a = nome_fornecedor_mais_compra[nome_fornecedor_mais_compra['NOMEFORN'].str.contains(search_term, case=False)]
+    # Filtrar os dados de acordo com o termo de pesquisa
+    if search_term.isdigit():
+        # Pesquisa pelo código do produto
+        filtered_data = nome_fornecedor_mais_compra[nome_fornecedor_mais_compra['IDFORN'] == int(search_term)]
+    else:
+        # Pesquisa pelo nome do produto
+        filtered_data = nome_fornecedor_mais_compra[nome_fornecedor_mais_compra['NOMEFORN'].str.contains(search_term, case=False)]
+    st.write(nome_fornecedor_mais_compra)
+    nome_fornecedor_mais_compra['IDFORN'] = nome_fornecedor_mais_compra['IDFORN'].apply(lambda x: f'{x:,}'.replace(',', ''))
+    if search_term == "":
+        ui.metric_card(title="Total Compra", content=soma_compra_xml, description="SOMA TOTAL ATÉ O DIA ATUAL")
+    else:
+        soma_compra_xml = filtered_data['FVALCOMPRA'].sum()
+        ui.metric_card(title="Total Compra", content=soma_compra_xml, description=f"SOMA TOTAL DO CLIENTE {search_term}")
 
-# Exibindo a tabela filtrada
-st.write(filtered_data_a)
+# Função para renderizar a página de consulta por período
+def render_pagina_consulta_periodo():
+    # Mensagem inicial para o usuário
+    st.write("Por favor, selecione um intervalo de datas e insira o ID do fornecedor para filtrar as compras.")
 
-# -------------------------------------------------
+    # Date Range Picker
+    dt2 = ui.date_picker(key="date_picker2", mode="range", label="Selecione um intervalo de datas")
 
-# Date Range Picker
-dt2 = ui.date_picker(key="date_picker2", mode="range", label="Selecione um intervalo de datas")
+    # ID do fornecedor
+    id_fornecedor = st.text_input("Digite o ID do fornecedor:")
 
-# Converter as datas para o formato esperado (mes/dia/ano)
-compras['FDATAEMI'] = pd.to_datetime(compras['FDATAEMI'], format='%m/%d/%Y')
+    # Verificar se ambos, o intervalo de datas e o ID do fornecedor, foram fornecidos
+    if dt2 is not None and id_fornecedor.strip() != "":
+        start_date = dt2[0]
+        end_date = dt2[1]
+        
+        # Filtrar o DataFrame com base no intervalo de datas e no ID do fornecedor selecionado
+        compras_filtradas = compras[(compras['FDATAEMI'] >= start_date) & (compras['FDATAEMI'] <= end_date) & (compras['IDFORN'] == int(id_fornecedor))]
+        
+        # Calcular a soma do valor de compra para o período e o ID do fornecedor selecionados
+        soma_fvalcompra = compras_filtradas['FVALCOMPRA'].sum()
+        
+        # Exibir os dados filtrados
+        st.write("Dados filtrados:")
+        
+        # Criar uma nova coluna com a data formatada para exibição na tabela
+        compras_filtradas['FDATAEMI_formatada'] = compras_filtradas['FDATAEMI'].dt.strftime('%d/%m/%Y')
+        
+        # Exibir a tabela com a data formatada
+        st.write(compras_filtradas.drop(columns=['FDATAEMI']))  # Exclua a coluna original
+        
+        # Exibir a soma do valor de compra em um card
+        ui.metric_card(title="Total Compra", content=f"R$ {soma_fvalcompra:,.2f}", description="SOMA TOTAL ATÉ O DIA ATUAL")
+    elif dt2 is not None:
+        st.write("Por favor, insira o ID do fornecedor para filtrar as compras.")
+    elif id_fornecedor.strip() != "":
+        st.write("Por favor, selecione um intervalo de datas para filtrar as compras.")
 
-# Aplicar filtro de datas, se selecionado
-if dt2 is not None:
-    start_date = dt2[0]
-    end_date = dt2[1]
-    
-    # Filtrar o DataFrame com base no intervalo de datas selecionado
-    compras_filtradas = compras[(compras['FDATAEMI'] >= start_date) & (compras['FDATAEMI'] <= end_date)]
-    
-    # Calcular a soma do valor de compra para o período selecionado
-    soma_fvalcompra = compras_filtradas['FVALCOMPRA'].sum()
-    
-    # Exibir os dados filtrados
-    st.write("Dados filtrados:")
-    
-    # Criar uma nova coluna com a data formatada para exibição na tabela
-    compras_filtradas['FDATAEMI_formatada'] = compras_filtradas['FDATAEMI'].dt.strftime('%d/%m/%Y')
-    
-    # Exibir a tabela com a data formatada
-    st.write(compras_filtradas.drop(columns=['FDATAEMI']))  # Exclua a coluna original
-    
-    # Exibir a soma do valor de compra em um card
+pagina_selecionada = st.sidebar.radio('Selecione a página', ['Página Principal', 'Consulta por Período'])
 
-    ui.metric_card(title="Total Compra", content=f"R$ {soma_fvalcompra:,.2f}", description="SOMA TOTAL ATÉ O DIA ATUAL")
-else:
-    st.write("Nenhum intervalo de datas selecionado.")
+# Renderização da página selecionada
+if pagina_selecionada == 'Página Principal':
+    render_pagina_principal()
+elif pagina_selecionada == 'Consulta por Período':
+    render_pagina_consulta_periodo()

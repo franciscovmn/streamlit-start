@@ -24,7 +24,7 @@ venda_cliente.drop('IDFORN', axis='columns')
 venda_cliente['NOMECLI'].fillna('Consumidor Final', inplace=True)
 
 # Criando tabela dos produtos que mais venderam
-produto_mais_venda = venda_itens.groupby('PCOD')['VLVENDA'].sum().reset_index()
+produto_mais_venda = venda_itens.groupby('PCOD')[['VLVENDA','QTDVENDA']].sum().reset_index()
 
 # Localizando os produtos que mais venderam
 produto_mais_venda = produto_mais_venda.sort_values(by='VLVENDA', ascending=False)
@@ -105,11 +105,15 @@ verifica_nome_produtos_vendas['PVLUVENDA'] = verifica_nome_produtos_vendas['PVLU
 
 # Selecione as colunas relevantes para verifica_nome_produtos_vendas_qtd
 verifica_nome_produtos_vendas_qtd = verifica_nome_produtos_vendas_qtd[['PCOD', 'PDESC', 'QTDVENDA','VLVENDA']]
-verifica_nome_produtos_vendas= verifica_nome_produtos_vendas[['PCOD', 'PDESC', 'VLVENDA','PVLUVENDA']]
+verifica_nome_produtos_vendas= verifica_nome_produtos_vendas[['PCOD', 'PDESC', 'VLVENDA','QTDVENDA']]
 
 # Formatar 'QTDVENDA' para moeda brasileira real
 verifica_nome_produtos_vendas_qtd['QTDVENDA'] = verifica_nome_produtos_vendas_qtd['QTDVENDA'].map(lambda x: f'{x:,.0f}')
+verifica_nome_produtos_vendas['QTDVENDA'] = verifica_nome_produtos_vendas['QTDVENDA'].map(lambda x: f'{x:,.0f}')
 verifica_nome_produtos_vendas_qtd['VLVENDA'] = verifica_nome_produtos_vendas_qtd['VLVENDA'].map(lambda x: f'R${x:,.2f}')
+
+verifica_nome_produtos_vendas = verifica_nome_produtos_vendas.rename(columns={'PCOD': 'CODIGO', 'PDESC': 'NOME','VLVENDA':'SOMA VENDAS','QTDVENDA':'QUANTIDADE VENDIDA'})
+verifica_nome_produtos_vendas_qtd = verifica_nome_produtos_vendas_qtd.rename(columns={'PCOD': 'CODIGO', 'PDESC': 'NOME','VLVENDA':'SOMA VENDAS','QTDVENDA':'QUANTIDADE VENDIDA'})
 
 # Mostrar a tabela embaixo do respectivo gráfico
 with cols_t[0]:

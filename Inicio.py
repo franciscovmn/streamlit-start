@@ -89,17 +89,23 @@ if dt1 is not None:
     compras_filtradas['IDFORN'] = compras_filtradas['IDFORN'].map(lambda x: f'{x:}')
 
     compras_filtradas=compras_filtradas[['FVALCOMPRA','FDATAEMI_FORMATADA','NOMEFORN','UF','IDFORN','FDATAEMI']]
-    # Exibir a tabela com a data formatada
-    #st.write(soma_vendas_total_filtradas.drop(columns=['FDATAEMI']))  # Exclua a coluna original
-    #st.write(compras_filtradas.drop(columns=['FDATAEMI']))  # Exclua a coluna original
+    # Exibir a soma do valor de compra em um card
+    cols_c = st.columns(2)
+    with cols_c[0]:
+        ui.metric_card(title="Total Vendas", content=f"R$ {soma_fvalvenda:,.2f}", description="SOMA TOTAL ATÉ O DIA ATUAL")
+    with cols_c[1]:
+        ui.metric_card(title="Total Compras", content=f"R$ {soma_fvalcompra:,.2f}", description="SOMA TOTAL ATÉ O DIA ATUAL")
+
+    soma_vendas_total_filtradas = soma_vendas_total_filtradas.rename(columns={'FVALVENDA': 'VALOR DA VENDA', 'FLOJA': 'LOJA','FDATAEMI_FORMATADA':'DATA DA VENDA'})
+    compras_filtradas = compras_filtradas.rename(columns={'FVALCOMPRA': 'VALOR DA COMPRA', 'NOMEFORN': 'CLIENTE','FDATAEMI_FORMATADA':'DATA DA COMPRA','IDFORN':'CODIGO DO CLIENTE'})
+    compras_filtradas['CLIENTE'] = compras_filtradas['CLIENTE'].fillna('Consumidor Final')
+    compras_filtradas['UF'] = compras_filtradas['UF'].fillna('PB')
+
     cols = st.columns(2)
     with cols[0]:
         st.write(soma_vendas_total_filtradas.drop(columns=['FDATAEMI']))  # Exclua a coluna original
     with cols[1]:
         st.write(compras_filtradas.drop(columns=['FDATAEMI']))  # Exclua a coluna original
         
-    # Exibir a soma do valor de compra em um card
-    ui.metric_card(title="Total Vendas", content=f"R$ {soma_fvalvenda:,.2f}", description="SOMA TOTAL ATÉ O DIA ATUAL")
-    ui.metric_card(title="Total Compras", content=f"R$ {soma_fvalcompra:,.2f}", description="SOMA TOTAL ATÉ O DIA ATUAL")
 else:
     st.write("Nenhum intervalo de datas selecionado.")

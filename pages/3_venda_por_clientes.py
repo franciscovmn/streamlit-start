@@ -54,21 +54,34 @@ fig.update_layout(
     legend_title="Estado",
     yaxis={'categoryorder':'total ascending'} # Ordenando os fornecedores da maior para a menor venda
 )
-
-# Exibindo o gráfico no Streamlit
-st.plotly_chart(fig)
-# --------------------- PESQUISA DO NOME DO FORNECEDOR --------------------------
-# Formatar FVALVENDA para moeda (Real)
 tabela_clientes_mais_compraram['FVALVENDA'] = tabela_clientes_mais_compraram['FVALVENDA'].map(lambda x: f'R$ {x:,.2f}')
+cols = st.columns(3)
+with cols[0]:
+    # Exibindo o gráfico no Streamlit
+    st.plotly_chart(fig)
+with cols[2]:
+    tabela_clientes_mais_compraram = tabela_clientes_mais_compraram.rename(columns={'IDCLI': 'CODIGO','NOMEFORN':'CLIENTE', 'FVALVENDA': 'VALOR COMPRA'})
+    st.write(tabela_clientes_mais_compraram)
+# --------------------- PESQUISA DO NOME DO FORNECEDOR --------------------------
+# Remover o símbolo de 'R$' e as vírgulas da coluna FVALVENDA antes de convertê-la para float
+tabela_clientes_mais_compraram['VALOR COMPRA'] = tabela_clientes_mais_compraram['VALOR COMPRA'].map(lambda x: float(x.replace('R$', '').replace(',', '')) if isinstance(x, str) else x)
 
 # Formatar IDCLI para número inteiro sem vírgulas
-tabela_clientes_mais_compraram['IDCLI'] = tabela_clientes_mais_compraram['IDCLI'].map(lambda x: f'{x:}')
+tabela_clientes_mais_compraram['CODIGO'] = tabela_clientes_mais_compraram['CODIGO'].astype(int)
 
+# PESQUISA DO NOME DO CLIENTE
+search_term = st.text_input("Digite o nome ou código do cliente:")
 
-search_term = st.text_input("Digite o termo de pesquisa:")
+# Verificando se o termo de pesquisa é um número (código do cliente)
+if search_term.isdigit():
+    # Pesquisa pelo código do cliente
+    filtered_data = tabela_clientes_mais_compraram[tabela_clientes_mais_compraram['CODIGO'] == int(search_term)]
+else:
+    # Pesquisa pelo nome do cliente
+    filtered_data = tabela_clientes_mais_compraram[tabela_clientes_mais_compraram['CLIENTE'].str.contains(search_term, case=False)]
 
-# Filtrando os dados com base no termo de pesquisa
-filtered_data = tabela_clientes_mais_compraram[tabela_clientes_mais_compraram['NOMEFORN'].str.contains(search_term, case=False)]
+# Calculando a soma das compras do cliente filtrado
+soma_compras_cliente = filtered_data['VALOR COMPRA'].sum()
 
-# Exibindo a tabela filtrada
-st.write(filtered_data)
+# Exibindo a soma das compras do cliente filtrado
+ui.metric_card(title="VALOR COMPRA", content=f"R$ {soma_compras_cliente:,.2f}", description=f"cliente ou codigo cadastrado: {search_term}")

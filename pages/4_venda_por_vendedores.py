@@ -73,4 +73,5 @@ with cols_1[0]:
     st.plotly_chart(fig_clientes)
 with cols_1[2]:
     st.write("Dados dos Clientes:")
-    st.dataframe(dados_vendedor_selecionado_1[['IDCLI', 'NOMEFORN', 'CP_CIDADE', 'UF', 'FVALVENDA', 'FCOMISSAO']])
+    dados_vendedor_selecionado_1 = dados_vendedor_selecionado_1.rename(columns={'IDCLI': 'CODIGO','NOMEFORN':'CLIENTE', 'CP_CIDADE': 'CIDADE','FVALVENDA':'VALOR COMPRA','FCOMISSAO':'COMISSAO'})
+    st.dataframe(dados_vendedor_selecionado_1[['CODIGO', 'CLIENTE', 'CIDADE', 'UF', 'VALOR COMPRA', 'COMISSAO']])
