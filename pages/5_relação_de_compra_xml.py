@@ -65,7 +65,7 @@ def render_pagina_principal():
     else:
         # Pesquisa pelo nome do produto
         filtered_data = nome_fornecedor_mais_compra[nome_fornecedor_mais_compra['NOMEFORN'].str.contains(search_term, case=False)]
-    st.write(nome_fornecedor_mais_compra)
+    st.write(filtered_data)
     nome_fornecedor_mais_compra['IDFORN'] = nome_fornecedor_mais_compra['IDFORN'].apply(lambda x: f'{x:,}'.replace(',', ''))
     if search_term == "":
         ui.metric_card(title="Total Compra", content=soma_compra_xml, description="SOMA TOTAL ATÉ O DIA ATUAL")

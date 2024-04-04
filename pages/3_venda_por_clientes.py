@@ -112,4 +112,3 @@ elif pagina_selecionada == 'CLIENTES NOVOS':
     render_cliente_novos()
 elif pagina_selecionada == 'CLIENTES ASCENDENTES':
     render_cliente_ascendentes()
-

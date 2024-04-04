@@ -26,11 +26,14 @@ soma_compras_total = compras['FVALCOMPRA'].sum()
 soma_vendas_total_str = f'R$ {soma_vendas_total:,.2f}'
 soma_compras_total_str = f'R$ {soma_compras_total:,.2f}'
 
+lucro_bruto = soma_vendas_total - soma_compras_total
+lucro_bruto_str = f"R$ {lucro_bruto:,.2f}"
 cols = st.columns(2)
 with cols[0]:
     ui.metric_card(title="COMPRA TOTAL", content=soma_compras_total_str,key="card1")
 with cols[1]:
     ui.metric_card(title="VENDA TOTAL", content=soma_vendas_total_str, key="card2")
+ui.metric_card(title="LUCRO BRUTO", content=lucro_bruto_str, key="card3")
 
 # ----------------------
 # Colocando em ordem
